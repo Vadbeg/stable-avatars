@@ -41,6 +41,8 @@ class ImageProcessorControlNet:
         negative_prompt: Optional[str] = None,
         num_inference_steps: int = 20,
         guidance_scale: float = 7.5,
+        height: int = 1024,
+        width: int = 1024,
     ) -> NDArray:
         seed_everything(27)
 
@@ -53,6 +55,62 @@ class ImageProcessorControlNet:
         out_image_pil = self._sd_model(
             prompt=prompt,
             image=conditional_images_pil,
+            negative_prompt=negative_prompt,
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+            controlnet_conditioning_scale=controlnet_conditioning_scale,
+            height=height,
+            width=width,
+        ).images[0]
+        out_image = np.array(out_image_pil)
+        out_image = cv2.resize(out_image, (image.shape[1], image.shape[0]))
+
+        return out_image
+
+
+class ImageProcessorControlNetImg2Img:
+    def __init__(
+        self,
+        conditional_creators: List[BaseConditionalCreator],
+        sd_model: StableDiffusionControlNetImg2ImgPipeline,
+    ):
+        """
+        Processes each image with SD and ControlNet.
+        Supports multiple ControlNet conditional images.
+        But remember to pass ControlNet conditional creators in the same order as the ControlNet models.
+
+        :param conditional_creators: list of conditional creators, can be only one for single ControlNet model
+        :param sd_model: Stable Diffusion model
+        """
+
+        self._conditional_creators = conditional_creators
+        self._sd_model = sd_model
+
+    def process(
+        self,
+        image: NDArray,
+        prompt: str,
+        controlnet_conditioning_scale: List[float],
+        negative_prompt: Optional[str] = None,
+        image_strength: float = 0.8,
+        num_inference_steps: int = 20,
+        guidance_scale: float = 7.5,
+    ) -> NDArray:
+        seed_everything(27)
+
+        conditional_images_pil = []
+        for curr_conditional_creator in self._conditional_creators:
+            curr_conditional_image = curr_conditional_creator(image)
+            curr_conditional_image_pil = Image.fromarray(curr_conditional_image)
+            conditional_images_pil.append(curr_conditional_image_pil)
+
+        image_pil = Image.fromarray(image)
+
+        out_image_pil = self._sd_model(
+            prompt=prompt,
+            image=image_pil,
+            control_image=conditional_images_pil,
+            strength=image_strength,
             negative_prompt=negative_prompt,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,

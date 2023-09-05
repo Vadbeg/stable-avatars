@@ -49,16 +49,16 @@ if __name__ == "__main__":
         conditional_creators=_conditional_creators,
     )
 
-    image_path = "images/face5.jpg"
+    image_path = "images/face1.jpg"
     image = cv2.imread(image_path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    _prompt = "a girl in barbie style, perfect face, nice skeen, pink clothing, green eyes, cinematic composition, cinematic lighting, focused"
+    _prompt = "a man in barbie style, perfect face, nice skeen, pink clothing, green eyes, cinematic composition, cinematic lighting, focused"
     _negative_prompt = "deformed, distorted, disfigured, poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, mutated hands and fingers, disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation"
     _controlnet_conditioning_scale = [1.0]
-    _num_inference_steps = 35
-    _guidance_scale = 10
-    _image_strength = 0.7
+    _num_inference_steps = 30
+    _guidance_scale = 7.5
+    _image_strength = 0.6
 
     original_height, original_width = image.shape[:2]
     max_height = 1024
@@ -81,4 +81,4 @@ if __name__ == "__main__":
     )
 
     output_image = cv2.cvtColor(output_image, cv2.COLOR_RGB2BGR)
-    cv2.imwrite("images/face5_img2img.jpg", output_image)
+    cv2.imwrite("images/face1_res.jpg", output_image)

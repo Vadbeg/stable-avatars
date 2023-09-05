@@ -161,3 +161,6 @@ cython_debug/
 .DS_Store
 
 test_images/
+dreambooth_images/*.png
+dreambooth_images/*.jpg
+dreambooth_images/*.jpeg
